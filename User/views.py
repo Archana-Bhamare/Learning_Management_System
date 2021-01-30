@@ -115,7 +115,7 @@ take that request
             return redirect('login')
         else:
             logger.error("User not valid")
-            return Response("User not valid")
+            return redirect('login')
     except KeyError:
         logger.error("Key Error")
         return Response("Key Error")
@@ -164,3 +164,43 @@ class UserLogoutAPI(GenericAPIView):
             logger.error("Something Went Wrong")
             return Response("Something Went Wrong",
                             status=status.HTTP_400_BAD_REQUEST)
+
+
+class ForgotPasswordAPI(GenericAPIView):
+    """ This API is used for when user forgot password"""
+    serializer_class = ForgotPasswordFormSerializer
+
+    def post(self, request):
+        """
+        If user forgot his password then he can reset his password here
+        @param request: user request
+        @return: reset password
+        """
+        email = request.data['email']
+        try:
+            user = User.objects.filter(email=email)
+            if user.count() == 0:
+                logger.error("Not Found mail in database")
+                return Response("Not Found mail in database")
+            else:
+                username = user.values()[0]["username"]
+                current_site = get_current_site(request)
+                domain_name = current_site.domain
+                token = token_activation(username=username)
+                url = str(token)
+                surl = get_surl(url)
+                short_token = surl.split('/')
+                mail_subject = " Forgotten Password reset"
+                msg = render_to_string('reset_email.html', {
+                    'user': user,
+                    'domain': domain_name,
+                    'surl': short_token[2]
+                })
+                recipients = email
+                email = EmailMessage(mail_subject, msg, to=[recipients])
+                email.send()
+                logger.info('Reset Password link sent')
+                return Response('Please check your email address to reset password')
+        except KeyError:
+            logger.error("Key Error")
+            return Response("Key error")
