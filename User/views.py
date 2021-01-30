@@ -1,6 +1,8 @@
 import logging
 import jwt
+from django.contrib.auth import authenticate, login, logout
 from django.db.models import Q
+from django.shortcuts import redirect
 from django_short_url.models import ShortURL
 from django_short_url.views import get_surl
 from rest_framework import status
@@ -12,8 +14,11 @@ from django.template.loader import render_to_string
 from LMSystem import settings
 from LMSystem.settings import file_handler
 from User.models import User
-from User.serializer import UserRegisterSerializer
+from User.serializer import UserRegisterSerializer, UserLoginSerializer, \
+    ForgotPasswordFormSerializer
 from rest_framework_jwt.settings import api_settings
+
+from User.token import token_activation
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -44,15 +49,18 @@ class UserRegisterAPI(GenericAPIView):
         role = data.get('role')
         if password != confirm_password:
             logger.error("password mismatch")
-            return Response("password mismatch ", status=status.HTTP_400_BAD_REQUEST)
+            return Response("password mismatch ",
+                            status=status.HTTP_400_BAD_REQUEST)
         user_email = User.objects.filter(
             Q(email__iexact=email)
         )
         if user_email.exists():
             logger.error("Email id already exist")
-            return Response("Email id already exist", status=status.HTTP_400_BAD_REQUEST)
+            return Response("Email id already exist",
+                            status=status.HTTP_400_BAD_REQUEST)
         else:
-            user = User.objects.create(first_name=first_name, last_name=last_name, username=username, email=email,
+            user = User.objects.create(first_name=first_name, last_name=last_name,
+                                       username=username, email=email,
                                        password=password, mob_no=mob_no)
             try:
                 if role == "Engineer":
@@ -78,17 +86,20 @@ class UserRegisterAPI(GenericAPIView):
                 if role == "Mentor":
                     user.save()
                     logger.info("Mentor Register Successfully")
-                    return Response("Successfully register Mentor", status=status.HTTP_200_OK)
+                    return Response("Successfully register Mentor",
+                                    status=status.HTTP_200_OK)
             except:
                 logger.error("Something went Wrong")
-                return Response("Something went wrong", status=status.HTTP_400_BAD_REQUEST)
+                return Response("Something went wrong",
+                                status=status.HTTP_400_BAD_REQUEST)
             logger.info("Admin Register Successfully")
             return Response("Admin Register Successfully", status=status.HTTP_200_OK)
 
 
 def activate(request, surl):
     """
-        @param request: once the account verification link is clicked by user this will take that request
+        @param request: once the account verification link is clicked by user this will
+take that request
         @return: it will redirect to login page
     """
     try:
@@ -101,10 +112,55 @@ def activate(request, surl):
             user.is_active = True
             user.save()
             logger.info("successfully activate your account")
-            return Response("successfully activate your account")
+            return redirect('login')
         else:
             logger.error("User not valid")
             return Response("User not valid")
     except KeyError:
         logger.error("Key Error")
         return Response("Key Error")
+
+
+class UserLoginAPI(GenericAPIView):
+    """ This API is used to logged in the user"""
+    serializer_class = UserLoginSerializer
+
+    def post(self, request):
+        """
+        This function used to logged in the user by username and password
+        :param request: user data
+        :return: user logged in
+        """
+        data = request.data
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.data.get('username')
+        password = serializer.data.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user:
+            login(request, user)
+            logger.info("You are logged in Successfully")
+            return Response("You are logged in Successfully",
+                            status=status.HTTP_200_OK)
+        logger.error("Invalid User")
+        return Response("Invalid User", status=status.HTTP_401_UNAUTHORIZED)
+
+
+class UserLogoutAPI(GenericAPIView):
+    """ This Logout API used to logout the user"""
+    serializer_class = UserLoginSerializer
+
+    def get(self, request):
+        """
+        This function used to logout the user
+        @param request: User logout request
+        @return: logout user
+        """
+        try:
+            logout(request)
+            logger.info("Your Successfully Logged out")
+            return Response("Your Successfully Logged out", status=status.HTTP_200_OK)
+        except Exception:
+            logger.error("Something Went Wrong")
+            return Response("Something Went Wrong",
+                            status=status.HTTP_400_BAD_REQUEST)
