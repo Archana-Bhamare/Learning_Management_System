@@ -1,0 +1,10 @@
+{% autoescape off %}
+Hi {{ user.username }},
+You have been register successfully, Please submit the details
+Use following credentials -
+Username : {{ user.username }}, Password : {{ user.password }}
+Click here to submit the details -
+http://{{ domain }}{% url 'activate' surl=surl %}
+Thanks,
+Learning Management System Team
+{% endautoescape %}
