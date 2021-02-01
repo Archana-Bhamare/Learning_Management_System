@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'Learning_System',
     'rest_framework',
     'drf_yasg',
+    'django_short_url'
 ]
 
 MIDDLEWARE = [
