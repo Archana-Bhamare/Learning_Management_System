@@ -3,7 +3,8 @@ from . import views
 
 urlpatterns = [
     path('addcourse', views.AddCourseAPI.as_view(), name='addcourse'),
-    path('updatestudent', views.UpdateStudentDetailsAPI.as_view(), name='updatestudent'),
-    path('updatementor', views.UpdateMentorDetailsAPI.as_view(), name='updatementor'),
-    path('updateeducation', views.UpdateStudentEducationAPI.as_view(), name='updateeducation'),
+    path('updatecourse/<int:course_id>', views.UpdateCourseAPI.as_view(),name='updatecourse'),
+    path('updatestudent/<int:student_id>', views.UpdateStudentDetailsAPI.as_view(), name='updatestudent'),
+    path('updatementor/<int:mentor_id>', views.UpdateMentorDetailsAPI.as_view(), name='updatementor'),
+    path('displaymentor/',views.DisplayMentorDetailsAPI.as_view(),name='displyamentor'),
 ]
