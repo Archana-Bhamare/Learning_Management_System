@@ -32,6 +32,7 @@ class Education(models.Model):
     from_date = models.DateField(default=None, null=True)
     till = models.DateField(default=None, null=True)
 
+
     def __str__(self):
         return self.student.student.get_full_name()
 
@@ -41,8 +42,7 @@ class Mentor(models.Model):
     course = models.ManyToManyField(Course)
 
     def __str__(self):
-        return self.mentor.get_full_name()
-
+        return self.mentor.email
 
 class StudentMentor(models.Model):
     student = models.OneToOneField(Student, on_delete=models.CASCADE)
