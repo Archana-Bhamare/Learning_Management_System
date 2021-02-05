@@ -1,8 +1,7 @@
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-
 from Authentication.models import User
-from htmlcov.learning_management import Student, Education, Mentor
+from learning_management.models import Student, Education, Mentor
 
 
 @receiver(post_save, sender=User)
