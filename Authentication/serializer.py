@@ -9,12 +9,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserLoginSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=10, min_length=3, required=True)
+    username = serializers.CharField(max_length=25, min_length=3, required=True)
     password = serializers.CharField(max_length=20, min_length=5, required=True)
 
 
 class ChangeUserPasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField(max_length=15, min_length=5)
     new_password = serializers.CharField(max_length=15, min_length=5)
     confirm_password = serializers.CharField(max_length=15, min_length=5)
 
