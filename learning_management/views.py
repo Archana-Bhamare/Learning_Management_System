@@ -1,5 +1,4 @@
 import logging
-
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
@@ -9,7 +8,7 @@ from Learning_System.settings import file_handler
 from learning_management.models import *
 from learning_management.serializer import AddCourseSerializer, UpdateStudentDetailsSerializer, \
     UpdateMentorDetailsSerializer, UpdateStudentEducationSerializer, \
-    DisplayMentorCourseSerializer, StudentMentorSerializer
+    DisplayMentorCourseSerializer, StudentMentorSerializer, StudentMentorDetailSerializer
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -292,6 +291,7 @@ class StudentMentorAPI(GenericAPIView):
     """ This API is used for assigning mentor and course to student"""
     serializer_class = StudentMentorSerializer
     queryset = StudentMentor.objects.all()
+    permission_classes = (IsAdmin, )
 
     def get(self, request):
         """
@@ -301,7 +301,7 @@ class StudentMentorAPI(GenericAPIView):
         """
         try:
             data = StudentMentor.objects.all()
-            serializer = self.serializer_class(data, many=True)
+            serializer = StudentMentorDetailSerializer(data, many=True)
             logger.info("Display student data")
             return Response(serializer.data)
         except Exception:
