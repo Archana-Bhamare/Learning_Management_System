@@ -87,7 +87,7 @@ class UserLoginAPI(GenericAPIView):
                 logger.info("You are Login successfully")
                 return Response("You are Login successfully", status=status.HTTP_200_OK)
         logger.error("Invalid user")
-        return Response("Invalid user")
+        return Response("Invalid user", status=status.HTTP_401_UNAUTHORIZED)
 
 @method_decorator(login_required(login_url='/User/login/'), name='dispatch')
 class UserLogoutAPI(GenericAPIView):
@@ -117,20 +117,16 @@ class ChangeUserPasswordView(GenericAPIView):
         """
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        old_password = serializer.data.get('old_password')
         new_password = serializer.data.get('new_password')
         confirm_password = serializer.data.get('confirm_password')
-        if check_password(old_password, request.user.password):
-            if new_password != confirm_password:
-                logger.error("New Password Mismatch")
-                return Response("Password Mismatch", status=status.HTTP_400_BAD_REQUEST)
-            request.user.set_password(raw_password=serializer.data.get('new_password'))
-            request.user.is_first_login = False
-            request.user.save()
-            logger.info("Password changed successfully")
-            return Response("Password changed successfully", status=status.HTTP_200_OK)
-        logger.error("Old password does not match")
-        return Response("Old password does not match", status=status.HTTP_401_UNAUTHORIZED)
+        if new_password != confirm_password:
+            logger.error("New Password Mismatch")
+            return Response("Password Mismatch", status=status.HTTP_400_BAD_REQUEST)
+        request.user.set_password(raw_password=serializer.data.get('new_password'))
+        request.user.is_first_login = False
+        request.user.save()
+        logger.info("Password changed successfully")
+        return Response("Password changed successfully", status=status.HTTP_200_OK)
 
 
 class ForgotPassword(GenericAPIView):
@@ -145,7 +141,10 @@ class ForgotPassword(GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         user_data = serializer.data
-        user = User.objects.get(email=user_data['email'])
+        try:
+            user = User.objects.get(email=user_data['email'])
+        except:
+            return Response("Email Id not Valid", status=status.HTTP_404_NOT_FOUND)
         payload = jwt_payload_handler(user)
         token = jwt.encode(payload, settings.SECRET_KEY).decode('UTF-8')
 
