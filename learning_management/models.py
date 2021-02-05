@@ -55,6 +55,7 @@ class Performance(models.Model):
     mentor = models.ForeignKey(Mentor, on_delete=models.SET_NULL, null=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     current_score = models.FloatField(default=None)
+    updated_at = models.DateField(auto_now=True)
 
     def __str__(self):
         return self.student.student.get_full_name()
