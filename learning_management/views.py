@@ -8,7 +8,8 @@ from Learning_System.settings import file_handler
 from learning_management.models import *
 from learning_management.serializer import AddCourseSerializer, UpdateStudentDetailsSerializer, \
     UpdateMentorDetailsSerializer, UpdateStudentEducationSerializer, \
-    DisplayMentorCourseSerializer, StudentMentorSerializer, StudentMentorDetailSerializer
+    DisplayMentorCourseSerializer, StudentMentorSerializer, StudentMentorDetailSerializer, PerformanceSerializer, \
+    PerformanceDetailsSerializer
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -291,7 +292,7 @@ class StudentMentorAPI(GenericAPIView):
     """ This API is used for assigning mentor and course to student"""
     serializer_class = StudentMentorSerializer
     queryset = StudentMentor.objects.all()
-    permission_classes = (IsAdmin, )
+    permission_classes = (IsAdmin,)
 
     def get(self, request):
         """
@@ -330,3 +331,41 @@ class StudentMentorAPI(GenericAPIView):
         except Exception:
             logger.error("Something went wrong")
             return Response("Something went wrong", status=status.HTTP_403_FORBIDDEN)
+
+
+class PerformanceAPI(GenericAPIView):
+    """ This API is used for student performance"""
+    serializer_class = PerformanceSerializer
+    queryset = Performance.objects.all()
+    permission_classes = (IsAdmin,)
+
+    def get(self, request):
+        """
+        This function is used for fetching all the student performance details
+        :param request: student
+        :return: student's performance details
+        """
+        data = Performance.objects.all()
+        try:
+            serializer = PerformanceDetailsSerializer(data, many=True)
+            logger.info("Fetching student performance details")
+            return Response(serializer.data)
+        except Exception:
+            logger.error("Something went wrong")
+            return Response("something went wrong!!!", status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request):
+        """
+        This function used for updating student score
+        :param request: student score
+        :return: student current_score performance
+        """
+        serializer = self.serializer_class(data=request.data)
+        try:
+            serializer.is_valid()
+            serializer.save()
+            logger.info("Student score updated")
+            return Response("Student score Updated", status=status.HTTP_200_OK)
+        except Exception:
+            logger.error("Something went wrong")
+            return Response("Something went wrong!!!", status=status.HTTP_403_FORBIDDEN)
