@@ -5,4 +5,4 @@ class LearnManagementConfig(AppConfig):
     name = 'learning_management'
 
     def ready(self):
-        pass
+        import learning_management.signals
