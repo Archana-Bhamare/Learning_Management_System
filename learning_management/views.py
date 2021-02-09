@@ -33,9 +33,9 @@ class AddCourseAPI(GenericAPIView):
             serializer = self.serializer_class(course, many=True)
             logger.info("Display all the Course")
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except Exception:
-            logger.error("Something went wrong!!!")
-            return Response("Something went wrong!!!", status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
         """
@@ -43,16 +43,16 @@ class AddCourseAPI(GenericAPIView):
         :param request: course name and description
         :return: Add the courses
         """
-        data = request.data
-        serializer = self.serializer_class(data=data)
         try:
+            data = request.data
+            serializer = self.serializer_class(data=data)
             serializer.is_valid()
             serializer.save()
             logger.info("New Course is Added")
-            return Response("New Course is Added ", status=status.HTTP_201_CREATED)
-        except Exception:
-            logger.error("Something went wrong!!!")
-            return Response("Something went wrong!!!", status=status.HTTP_403_FORBIDDEN)
+            return Response({'response': 'New Course is Added'}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_403_FORBIDDEN)
 
 
 class UpdateCourseAPI(GenericAPIView):
@@ -73,12 +73,12 @@ class UpdateCourseAPI(GenericAPIView):
             serializer = self.serializer_class(course)
             logger.info("Displaying the course")
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            logger.info("Course not found!!!")
-            return Response("Course not found!!!", status=status.HTTP_404_NOT_FOUND)
-        except Exception:
-            logger.error("Something went wrong!!!")
-            return Response("Something went wrong!!!", status=status.HTTP_400_BAD_REQUEST)
+        except ObjectDoesNotExist as e:
+            logger.info(e)
+            return Response({'response': 'Course not found!!!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, course_id):
         """
@@ -89,17 +89,17 @@ class UpdateCourseAPI(GenericAPIView):
         """
         try:
             course = Course.objects.get(pk=course_id)
-            serializer = self.serializer_class(course, data=request.data, partial=True)
+            serializer = self.serializer_class(course, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 logger.info("Course update successfully")
-                return Response("Course update successfully", status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            logger.error("Course not found!!!")
-            return Response("Course not found!!!", status=status.HTTP_404_NOT_FOUND)
-        except Exception:
-            logger.error("Something went wrong!!!")
-            return Response("Something went wrong!!!", status=status.HTTP_403_FORBIDDEN)
+                return Response({'response': 'Course update successfully'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            logger.error(e)
+            return Response({'response': 'Course not found!!!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, course_id):
         """
@@ -112,16 +112,16 @@ class UpdateCourseAPI(GenericAPIView):
             course = Course.objects.get(pk=course_id)
             course.delete()
             logger.info("Course deleted successfully")
-            return Response("Course deleted successfully", status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            logger.error("Course not found!!!")
-            return Response("Course not found!!!", status=status.HTTP_404_NOT_FOUND)
-        except Exception:
-            logger.error("Something went wrong!!!")
-            return Response("Something went wrong!!!", status=status.HTTP_403_FORBIDDEN)
+            return Response({'response': 'Course deleted successfully'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            logger.error(e)
+            return Response({'response': 'Course not found!!!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_403_FORBIDDEN)
 
 
-class UpdateStudentDetailsAPI(GenericAPIView):
+class StudentDetailsAPI(GenericAPIView):
     """ This API is used for updating the student personal details"""
     serializer_class = UpdateStudentDetailsSerializer
     queryset = Student.objects.all()
@@ -140,14 +140,14 @@ class UpdateStudentDetailsAPI(GenericAPIView):
                 serializer = self.serializer_class(student, many=True)
                 logger.info("Display student data")
                 return Response(serializer.data, status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            logger.error("Student not found!!!")
-            return Response("Student Not found!!!", status=status.HTTP_404_NOT_FOUND)
-        except Exception:
-            logger.error("Something went wrong!!!")
-            return Response("Something went wrong!!!", status=status.HTTP_403_FORBIDDEN)
+        except ObjectDoesNotExist as e:
+            logger.error(e)
+            return Response({'response': 'Student Not found!!!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_403_FORBIDDEN)
 
-    def put(self, request, student_id):
+    def post(self, request, student_id):
         """
         This function is used for updating the student data
         :param request: student personal details
@@ -160,16 +160,62 @@ class UpdateStudentDetailsAPI(GenericAPIView):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             logger.info("Student details updated")
-            return Response("Student details Updated", status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            logger.error("Student not found!!!")
-            return Response("Student not found!!!", status=status.HTTP_404_NOT_FOUND)
-        except Exception:
-            logger.error("Something went wrong!!!")
-            return Response("Something went wrong!!!", status=status.HTTP_403_FORBIDDEN)
+            return Response({'response': 'Student details Updated'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            logger.error(e)
+            return Response({'response': 'Student not found!!!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_403_FORBIDDEN)
+
+class UpdateStudentDetailsAPI(GenericAPIView):
+    """ This API is used for Update the student details"""
+    serializer_class = UpdateStudentDetailsSerializer
+    queryset = Student.objects.all()
+    permission_classes = (IsStudent,)
+
+    def get(self, request, student_id):
+        """
+                This function is used for getting the student with particular student id
+                :param request: student id
+                :param student_id: student id
+                :return: returned the student data
+        """
+        try:
+            student = Student.objects.get(pk=student_id)
+            serializer = self.serializer_class(student)
+            logger.info("Displaying student data")
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            logger.info(e)
+            return Response({'response': 'Student not found!!!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, student_id):
+        """
+                This function is used for updating the student data
+                :param request: student personal details
+                :param student_id: student id
+                :return: update the student data
+        """
+        try:
+            student = Student.objects.get(pk=student_id)
+            serializer = self.serializer_class(student, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                logger.info("Student details update successfully")
+                return Response({'response': 'Student details update successfully'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            logger.error(e)
+            return Response({'response': 'Student not found!!!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_403_FORBIDDEN)
 
 
-class UpdateStudentEducationAPI(GenericAPIView):
+class StudentEducationAPI(GenericAPIView):
     """ This API is used to update the student education details"""
     serializer_class = UpdateStudentEducationSerializer
     queryset = Education.objects.all()
@@ -186,14 +232,14 @@ class UpdateStudentEducationAPI(GenericAPIView):
             serializer = self.serializer_class(student, many=True)
             logger.info("Display student data")
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            logger.error("student not found!!!")
-            return Response("Student not found!!!", status=status.HTTP_404_NOT_FOUND)
-        except Exception:
-            logger.error("Something went wrong!!!")
-            return Response("Something went wrong!!!", status=status.HTTP_403_FORBIDDEN)
+        except ObjectDoesNotExist as e:
+            logger.error(e)
+            return Response({'response': 'Student not found!!!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_403_FORBIDDEN)
 
-    def put(self, request):
+    def post(self, request):
         """
         This function is used for updating the student educational details
         :param request: student personal details
@@ -205,16 +251,87 @@ class UpdateStudentEducationAPI(GenericAPIView):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             logger.info("Student education details updated")
-            return Response("Student education details Updated", status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            logger.error("Student not found!!!")
-            return Response("Student Not Found!!!", status=status.HTTP_404_NOT_FOUND)
-        except Exception:
-            logger.error("Something went wrong!!!")
-            return Response("Something went wrong!!!", status=status.HTTP_403_FORBIDDEN)
+            return Response({'response': 'Student education details Updated'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            logger.error(e)
+            return Response({'response': 'Student Not Found!!!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_403_FORBIDDEN)
+
+class UpdateStudentEducationAPI(GenericAPIView):
+    """ This API is used for Update the student details"""
+    serializer_class = UpdateStudentEducationSerializer
+    queryset = Student.objects.all()
+    permission_classes = (IsStudent,)
+
+    def get(self, request, student_id):
+        """
+        This function is used to getting student educational details
+        :param request: student educational details
+        :param student_id: student id
+        :return: returned the student data
+        """
+        try:
+            student = Student.objects.get(pk=student_id)
+            serializer = self.serializer_class(student)
+            logger.info("Displaying the student data")
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            logger.info(e)
+            return Response({'response': 'Student not found!!!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, student_id):
+        """
+        This function is used for updating the student educational details
+        :param request: student personal details
+        :param student_id: student id
+        :return: update the student educational details
+        """
+        try:
+            student = Student.objects.get(pk=student_id)
+            serializer = self.serializer_class(student, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                logger.info("Student education details updated successfully")
+                return Response({'response': 'Student education details updated successfully'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            logger.error(e)
+            return Response({'response': 'Student not found!!!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_403_FORBIDDEN)
 
 
-class UpdateMentorDetailsAPI(GenericAPIView):
+class DisplayStudentAPI(GenericAPIView):
+    serializer_class = UpdateStudentDetailsSerializer
+    queryset = Student.objects.all()
+    permission_classes = (IsAdmin,)
+
+    def get(self, request):
+        """
+        This function is used for getting the student with particular student id
+        :param request: student id
+        :return: returned the  data
+        """
+        try:
+            student = Student.objects.all()
+            if student:
+                serializer = self.serializer_class(student, many=True)
+                logger.info("Display student data")
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            logger.error(e)
+            return Response({'response': 'Student not found!!!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_403_FORBIDDEN)
+
+
+class MentorDetailsAPI(GenericAPIView):
     """ This API used for update the Mentor details"""
     serializer_class = UpdateMentorDetailsSerializer
     queryset = Mentor.objects.all()
@@ -233,14 +350,14 @@ class UpdateMentorDetailsAPI(GenericAPIView):
                 serializer = DisplayMentorCourseSerializer(mentor, many=True)
                 logger.info("Display mentor data")
                 return Response(serializer.data, status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            logger.error("Mentor not found!!!")
-            return Response("Mentor not found!!!", status=status.HTTP_404_NOT_FOUND)
-        except Exception:
-            logger.error("Something went wrong!!!")
-            return Response("Something went wrong!!!", status=status.HTTP_403_FORBIDDEN)
+        except ObjectDoesNotExist as e:
+            logger.error(e)
+            return Response({'response': 'Mentor not found!!!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_403_FORBIDDEN)
 
-    def put(self, request, mentor_id):
+    def post(self, request, mentor_id):
         """
         This function is used to update the mentor data
         :param request: mentor and course
@@ -251,20 +368,19 @@ class UpdateMentorDetailsAPI(GenericAPIView):
             mentor = Mentor.objects.get(pk=mentor_id)
             serializer = self.serializer_class(data=request.data)
             serializer.is_valid(raise_exception=True)
-            courses = serializer.validated_data['course']
+            courses = serializer.validated_data.get('course')
             for course_name in courses:
                 course = Course.objects.get(course_name=course_name)
                 mentor.course.add(course.id)
                 mentor.save()
             logger.info("Course added successfully...")
-            return Response("Course added successFully...", status=status.HTTP_200_OK)
-        except ObjectDoesNotExist:
-            logger.error("Mentor not found!!!")
-            return Response("Mentor not found!!!", status=status.HTTP_404_NOT_FOUND)
-        except Exception:
-            logger.error("Something went wrong!!!")
-            return Response("Something went wrong!!!", status=status.HTTP_403_FORBIDDEN)
-
+            return Response({'response': 'Course added successFully...'}, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            logger.error(e)
+            return Response({'response': 'Mentor not found!!!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_403_FORBIDDEN)
 
 class DisplayMentorDetailsAPI(GenericAPIView):
     """ This API used for displaying all the Mentor with associate course"""
@@ -283,10 +399,9 @@ class DisplayMentorDetailsAPI(GenericAPIView):
             serializer = self.serializer_class(mentor, many=True)
             logger.info("Display Mentors list")
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except Exception:
-            logger.error("Something went wrong!!!")
-            return Response("Something went wrong!!!", status=status.HTTP_403_FORBIDDEN)
-
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_403_FORBIDDEN)
 
 class StudentMentorAPI(GenericAPIView):
     """ This API is used for assigning mentor and course to student"""
@@ -305,9 +420,9 @@ class StudentMentorAPI(GenericAPIView):
             serializer = StudentMentorDetailSerializer(data, many=True)
             logger.info("Display student data")
             return Response(serializer.data)
-        except Exception:
-            logger.error("Something went wrong")
-            return Response("Something went wrong", status=status.HTTP_403_FORBIDDEN)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong'}, status=status.HTTP_403_FORBIDDEN)
 
     def post(self, request):
         """
@@ -318,19 +433,17 @@ class StudentMentorAPI(GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         try:
             serializer.is_valid(raise_exception=True)
-            courses = serializer.validated_data['course']
+            courses = serializer.validated_data.get('course')
             mentor = Mentor.objects.get()
-            try:
-                if courses in mentor.course.all():
-                    serializer.save()
-                    logger.info("Mentor assigned")
-                    return Response("Mentor assigned", status=status.HTTP_200_OK)
-            except Exception:
-                logger.error("Mentor is not assigned for this course")
-                return Response("Mentor is not assigned for this course", status=status.HTTP_400_BAD_REQUEST)
-        except Exception:
-            logger.error("Something went wrong")
-            return Response("Something went wrong", status=status.HTTP_403_FORBIDDEN)
+            if courses in mentor.course.all():
+                serializer.save()
+                logger.info("Mentor assigned")
+                return Response({'response': 'Mentor assigned'}, status=status.HTTP_200_OK)
+            logger.error("Mentor is not assigned for this course")
+            return Response({'response': 'Mentor is not assigned for this course'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong'}, status=status.HTTP_403_FORBIDDEN)
 
 
 class PerformanceAPI(GenericAPIView):
@@ -339,33 +452,40 @@ class PerformanceAPI(GenericAPIView):
     queryset = Performance.objects.all()
     permission_classes = (IsAdmin,)
 
-    def get(self, request):
+    def get(self, request, student_id):
         """
-        This function is used for fetching all the student performance details
-        :param request: student
-        :return: student's performance details
+        This function is used for getting the student with particular student id
+        :param request: student id
+        :param student_id: student id
+        :return: returned the student data
         """
-        data = Performance.objects.all()
         try:
-            serializer = PerformanceDetailsSerializer(data, many=True)
-            logger.info("Fetching student performance details")
-            return Response(serializer.data)
-        except Exception:
-            logger.error("Something went wrong")
-            return Response("something went wrong!!!", status=status.HTTP_400_BAD_REQUEST)
+            student = Performance.objects.filter(pk=student_id)
+            if student:
+                serializer = PerformanceDetailsSerializer(student, many=True)
+                logger.info("Display student data")
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist as e:
+            logger.error(e)
+            return Response({'response': 'Student Not found!!!'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_403_FORBIDDEN)
 
-    def post(self, request):
+    def put(self, request, student_id):
         """
         This function used for updating student score
         :param request: student score
+        :param student_id: student id
         :return: student current_score performance
         """
-        serializer = self.serializer_class(data=request.data)
+        student = Performance.objects.filter(pk=student_id)
+        serializer = self.serializer_class(student, data=request.data)
         try:
             serializer.is_valid()
             serializer.save()
             logger.info("Student score updated")
-            return Response("Student score Updated", status=status.HTTP_200_OK)
-        except Exception:
-            logger.error("Something went wrong")
-            return Response("Something went wrong!!!", status=status.HTTP_403_FORBIDDEN)
+            return Response({'response': 'Student score Updated'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Something went wrong!!!'}, status=status.HTTP_403_FORBIDDEN)
