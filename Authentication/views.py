@@ -2,7 +2,6 @@ import logging
 import jwt
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.hashers import check_password
 from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
@@ -55,8 +54,8 @@ class UserRegistrationAPI(GenericAPIView):
         }
         Email.email_validation(data)
         Email.send_email(Email.email_validation(data))
-        logger.info({f'New {user_role} is added successfully'})
-        return Response({f'New {user_role} is added successfully'}, status=status.HTTP_201_CREATED)
+        logger.info("User register successful")
+        return Response({'response': f'New {user_role} is added successfully'}, status=status.HTTP_201_CREATED)
 
 
 class UserLoginAPI(GenericAPIView):
@@ -69,25 +68,27 @@ class UserLoginAPI(GenericAPIView):
         :param request: user data
         :return: user logged in
         """
-        token = request.GET.get('token')
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user_data = serializer.data
-        user = authenticate(username=user_data['username'], password=user_data['password'])
-        if user:
-            if token:
-                if user.is_first_login:
-                    token = request.GET.get('token')
-                    jwt.decode(token, settings.SECRET_KEY)
+        try:
+            token = request.GET.get('token')
+            serializer = self.serializer_class(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user_data = serializer.data
+            user = authenticate(username=user_data['username'], password=user_data['password'])
+            if user:
+                if token:
+                    if user.is_first_login:
+                        token = request.GET.get('token')
+                        jwt.decode(token, settings.SECRET_KEY)
+                        login(request, user)
+                        logger.info("User Login Successfully")
+                        return redirect('changepassword')
+                elif not token and not user.is_first_login:
                     login(request, user)
-                    logger.info("User Login Successfully")
-                    return redirect('changepassword')
-            elif not token and not user.is_first_login:
-                login(request, user)
-                logger.info("You are Login successfully")
-                return Response("You are Login successfully", status=status.HTTP_200_OK)
-        logger.error("Invalid user")
-        return Response("Invalid user", status=status.HTTP_401_UNAUTHORIZED)
+                    logger.info("You are Login successfully")
+                    return Response({'response': 'You are Login successfully'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(e)
+            return Response({'response': 'Invalid User'}, status=status.HTTP_401_UNAUTHORIZED)
 
 @method_decorator(login_required(login_url='/User/login/'), name='dispatch')
 class UserLogoutAPI(GenericAPIView):
@@ -102,7 +103,7 @@ class UserLogoutAPI(GenericAPIView):
         """
         logout(request)
         logger.info("Successfully logged out")
-        return Response("Successfully logged out", status=status.HTTP_200_OK)
+        return Response({'response': 'Successfully logged out'}, status=status.HTTP_200_OK)
 
 
 class ChangeUserPasswordView(GenericAPIView):
@@ -121,12 +122,12 @@ class ChangeUserPasswordView(GenericAPIView):
         confirm_password = serializer.data.get('confirm_password')
         if new_password != confirm_password:
             logger.error("New Password Mismatch")
-            return Response("Password Mismatch", status=status.HTTP_400_BAD_REQUEST)
+            return Response({'response': 'Password Mismatch'}, status=status.HTTP_400_BAD_REQUEST)
         request.user.set_password(raw_password=serializer.data.get('new_password'))
         request.user.is_first_login = False
         request.user.save()
         logger.info("Password changed successfully")
-        return Response("Password changed successfully", status=status.HTTP_200_OK)
+        return Response({'response': 'Password changed successfully'}, status=status.HTTP_200_OK)
 
 
 class ForgotPassword(GenericAPIView):
@@ -143,8 +144,9 @@ class ForgotPassword(GenericAPIView):
         user_data = serializer.data
         try:
             user = User.objects.get(email=user_data['email'])
-        except:
-            return Response("Email Id not Valid", status=status.HTTP_404_NOT_FOUND)
+        except Exception as  e:
+            logger.error(e)
+            return Response({'response': 'Email Id not Valid'}, status=status.HTTP_404_NOT_FOUND)
         payload = jwt_payload_handler(user)
         token = jwt.encode(payload, settings.SECRET_KEY).decode('UTF-8')
 
@@ -159,7 +161,7 @@ class ForgotPassword(GenericAPIView):
         Email.email_validation(email_data)
         Email.send_email(Email.email_validation(email_data))
         logger.info("Reset password link sent")
-        return Response("Please check your email address to reset password", status=status.HTTP_200_OK)
+        return Response({'response': 'Please check your email address to reset password'}, status=status.HTTP_200_OK)
 
 
 class ResetPasswordAPI(GenericAPIView):
@@ -180,14 +182,14 @@ class ResetPasswordAPI(GenericAPIView):
         confirm_password = serializer.data.get('confirm_password')
         if password != confirm_password:
             logger.error("Password Mismatch")
-            return Response("Password Mismatch", status=status.HTTP_400_BAD_REQUEST)
+            return Response({'response': 'Password Mismatch'}, status=status.HTTP_400_BAD_REQUEST)
         try:
             payload = jwt.decode(token, settings.SECRET_KEY)
             user = User.objects.get(id=payload['user_id'])
             user.set_password(user_data['password'])
             user.save()
             logger.info("Successfully Reset Password")
-            return Response("Successfully Reset Password", status=status.HTTP_200_OK)
-        except jwt.exceptions.DecodeError:
-            logger.error("Invalid Token")
-            return Response("Invalid Token", status=status.HTTP_400_BAD_REQUEST)
+            return Response({'response': 'Successfully Reset Password'}, status=status.HTTP_200_OK)
+        except jwt.exceptions.DecodeError as e:
+            logger.error(e)
+            return Response({'response': 'Invalid Token'}, status=status.HTTP_400_BAD_REQUEST)
