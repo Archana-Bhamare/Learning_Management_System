@@ -2,6 +2,7 @@ import logging
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from Authentication.permissions import IsStudent, IsMentor, IsAdmin
 from Learning_System.settings import file_handler
@@ -20,7 +21,7 @@ class AddCourseAPI(GenericAPIView):
     """ This API used for adding Courses """
     serializer_class = AddCourseSerializer
     queryset = Course.objects.all()
-    permission_classes = (IsAdmin,)
+    permission_classes = (IsAuthenticated, IsAdmin,)
 
     def get(self, request):
         """
@@ -59,7 +60,7 @@ class UpdateCourseAPI(GenericAPIView):
     """ This API is used for Update and Delete the course"""
     serializer_class = AddCourseSerializer
     queryset = Course.objects.all
-    permission_classes = (IsAdmin,)
+    permission_classes = (IsAuthenticated, IsAdmin,)
 
     def get(self, request, course_id):
         """
@@ -125,7 +126,7 @@ class StudentDetailsAPI(GenericAPIView):
     """ This API is used for updating the student personal details"""
     serializer_class = UpdateStudentDetailsSerializer
     queryset = Student.objects.all()
-    permission_classes = (IsStudent,)
+    permission_classes = (IsAuthenticated, IsStudent,)
 
     def get(self, request, student_id):
         """
@@ -172,7 +173,7 @@ class UpdateStudentDetailsAPI(GenericAPIView):
     """ This API is used for Update the student details"""
     serializer_class = UpdateStudentDetailsSerializer
     queryset = Student.objects.all()
-    permission_classes = (IsStudent,)
+    permission_classes = (IsAuthenticated, IsStudent,)
 
     def get(self, request, student_id):
         """
@@ -219,7 +220,7 @@ class StudentEducationAPI(GenericAPIView):
     """ This API is used to update the student education details"""
     serializer_class = UpdateStudentEducationSerializer
     queryset = Education.objects.all()
-    permission_classes = (IsStudent,)
+    permission_classes = (IsAuthenticated, IsStudent,)
 
     def get(self, request):
         """
@@ -263,7 +264,7 @@ class UpdateStudentEducationAPI(GenericAPIView):
     """ This API is used for Update the student details"""
     serializer_class = UpdateStudentEducationSerializer
     queryset = Student.objects.all()
-    permission_classes = (IsStudent,)
+    permission_classes = (IsAuthenticated, IsStudent,)
 
     def get(self, request, student_id):
         """
@@ -309,7 +310,7 @@ class UpdateStudentEducationAPI(GenericAPIView):
 class DisplayStudentAPI(GenericAPIView):
     serializer_class = UpdateStudentDetailsSerializer
     queryset = Student.objects.all()
-    permission_classes = (IsAdmin,)
+    permission_classes = (IsAuthenticated, IsAdmin,)
 
     def get(self, request):
         """
@@ -335,7 +336,7 @@ class MentorDetailsAPI(GenericAPIView):
     """ This API used for update the Mentor details"""
     serializer_class = UpdateMentorDetailsSerializer
     queryset = Mentor.objects.all()
-    permission_classes = (IsMentor,)
+    permission_classes = (IsAuthenticated, IsMentor,)
 
     def get(self, request, mentor_id):
         """
@@ -386,7 +387,7 @@ class DisplayMentorDetailsAPI(GenericAPIView):
     """ This API used for displaying all the Mentor with associate course"""
     serializer_class = DisplayMentorCourseSerializer
     queryset = Mentor.objects.all()
-    permission_classes = (IsAdmin,)
+    permission_classes = (IsAuthenticated, IsAdmin,)
 
     def get(self, request):
         """
@@ -407,7 +408,7 @@ class StudentMentorAPI(GenericAPIView):
     """ This API is used for assigning mentor and course to student"""
     serializer_class = StudentMentorSerializer
     queryset = StudentMentor.objects.all()
-    permission_classes = (IsAdmin,)
+    permission_classes = (IsAuthenticated, IsAdmin,)
 
     def get(self, request):
         """
@@ -450,7 +451,7 @@ class PerformanceAPI(GenericAPIView):
     """ This API is used for student performance"""
     serializer_class = PerformanceSerializer
     queryset = Performance.objects.all()
-    permission_classes = (IsAdmin,)
+    permission_classes = (IsAuthenticated, IsAdmin,)
 
     def get(self, request, student_id):
         """
